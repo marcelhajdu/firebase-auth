@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Firebase Authentication</title>
+  <script src="https://www.gstatic.com/firebasejs/7.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.6.1/firebase-analytics.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.6.0/firebase-auth.js"></script>
+  <script src="https://unpkg.com/vue"></script>
+</head>
+<body>
+
+<div id="app">
+  <h1>Vue School - Firebase Authentication</h1>
+  <div v-if="authUser">
+    <h2>Signed in as {{authUser.email}}</h2>
+    <button @click="signOut">Sign out</button>
+  </div>
+
+  <div v-else>
+    <form @submit.prevent="register">
+      <h2>Register</h2>
+      <input type="email" v-model="email" placeholder="Type your email">
+      <input type="password" v-model="password" placeholder="Pick your password">
+      <button>Register</button>
+    </form>
+
+    <form @submit.prevent="signIn">
+      <h2>Sign in</h2>
+      <input type="email" v-model="email" placeholder="Type your email">
+      <input type="password" v-model="password" placeholder="Type your password">
+      <button>Sign In</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Initialize Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyB1XJStpz1u8l9yK2BwtPJqlyQ1pQ8ZxUQ",
+    authDomain: "auth-e8bcd.firebaseapp.com",
+    databaseURL: "https://auth-e8bcd.firebaseio.com",
+    projectId: "auth-e8bcd",
+    storageBucket: "auth-e8bcd.appspot.com",
+    messagingSenderId: "786037341608",
+    appId: "1:786037341608:web:f9c4b8c7c3dba7f059b19d",
+    measurementId: "G-B3NKC1XRPH"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  firebase.analytics();
+  new Vue({
+    el: '#app',
+    data: {
+      email: '',
+      password: '',
+      authUser: null
+    },
+    methods: {
+      register () {
+        //creates an user with email and password. will sign the user in after the 
+        //account is created
+        firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
+          .then(() => console.log('all good!'))
+          .catch(error => alert(':/ ' + error.message))
+      },
+      signOut () {
+        //signs out the current user
+        firebase.auth().signOut()
+      },
+      signIn () {
+        //this is a promise 
+        firebase.auth().signInWithEmailAndPassword(this.email, this.password)
+          //so we can specify what we want to do, when there is no error
+          .then(() => console.log('all good!'))
+          //and when we got an error
+          .catch(error => alert(':/ ' + error.message))
+      }
+    },
+    created () {
+      //Firebase fires an event when an user sign in/out. We can listen on this event with onAuthStateChanged
+      //In the callback FB gives us the authenticated user, if nobody signed in, this will be null
+      //we store it in a variable to use it in Vue
+      firebase.auth().onAuthStateChanged(user => { this.authUser = user })
+    }
+  })
+</script>
+
+</body>
+</html> 
