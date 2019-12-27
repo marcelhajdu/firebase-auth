@@ -42,7 +42,8 @@
 </div>
 
 <script>
-  // Initialize Firebase
+  /*Initialize Firebase*/
+  //firebase config fajl
   const firebaseConfig = {
     apiKey: "AIzaSyB1XJStpz1u8l9yK2BwtPJqlyQ1pQ8ZxUQ",
     authDomain: "auth-e8bcd.firebaseapp.com",
@@ -53,26 +54,41 @@
     appId: "1:786037341608:web:f9c4b8c7c3dba7f059b19d",
     measurementId: "G-B3NKC1XRPH"
   };
-  // Initialize Firebase
+  /* Initialize Firebase */
+  //a firebase-re meghivjuk az initializeApp funkciot, parameternek pedig a firebaseConfig-ot
   firebase.initializeApp(firebaseConfig);
+  //a firebase-re meghivjuk az analytics funkciot
   firebase.analytics();
+  //definialunk egy uj Vue-t
   new Vue({
+    //az app elementre
     el: '#app',
+    //data object
     data: {
+      //email, erteke ures string
       email: '',
+      //password, erteke ures string
       password: '',
+      //authuser, erteke null
       authUser: null
     },
+    //meghods object
     methods: {
+      //register funkcio
       register () {
-        //creates an user with email and password. will sign the user in after the 
-        //account is created
+        /*creates an user with email and password. will sign the user in after the 
+        account is created*/
+        //a firebasere meghivjuk az auth funkciot, arra pedig a createuserWithEmailAndPassword funkciot
+        //parameternek atadjuk az email-t es a passwordot
         firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
+        //a thenben egy arrow funkcioval console.logoljuk ha minden oke
           .then(() => console.log('all good!'))
+          //a catchbe pedig egy arrow funkcioval alerteljuk az error.messaget
           .catch(error => alert(':/ ' + error.message))
       },
+      //signout funkcio
       signOut () {
-        //signs out the current user
+        //a firebase-re meghivjuk az auth funkcio-t, arra pedig a signOut funkcio-t
         firebase.auth().signOut()
       },
       signIn () {
