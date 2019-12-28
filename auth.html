@@ -17,6 +17,26 @@
     <img :src="authUser.photoUrl" height="150">
     <p>What's upp, {{ authUser.displayName || 'friend' }} ?</p>
     <button @click="signOut">Sign out</button>
+
+    <form @submit.prevent="updateProfile">
+      <h2>Update profile</h2>
+      <input v-model="displayName" placeholder="Your name">
+      <input v-model="photoURL" placeholder="Your photo url">
+      <button>Update</button>
+    </form>
+
+    <form @submit.prevent="updateEmail">
+      <h2>Update Email</h2>
+      <input v-model="email" placeholder="Your email">
+      <button>Update</button>
+    </form>
+
+    <form @submit.prevent="updatePassword">
+      <h2>Update Password</h2>
+      <input type="password" v-model="newPassword" placeholder="Your password">
+      <button>Update</button>
+    </form>
+
   </div>
 
   <div v-else>
@@ -70,7 +90,10 @@
       //password, erteke ures string
       password: '',
       //authuser, erteke null
-      authUser: null
+      authUser: null,
+      displayName: null,
+      photoURL: null,
+      newPassword: null
     },
     //meghods object
     methods: {
@@ -92,26 +115,59 @@
         firebase.auth().signOut()
       },
       signIn () {
-        //this is a promise 
+        /*this is a promise*/
+        //a firebase-re meghivjuk az auth funkciot, arra pedig a signInWithEmailAndPassword funkciot
+        //parameternak atadjuk az email-t es a password-ot
         firebase.auth().signInWithEmailAndPassword(this.email, this.password)
           //so we can specify what we want to do, when there is no error
+          //a thenben egy arrow funkcioval console.logoljuk ha minden oke
           .then(() => console.log('all good!'))
-          //and when we got an error
+          //a catchbe pedig egy arrow funkcioval alerteljuk az error.messaget
           .catch(error => alert(':/ ' + error.message))
       },
       signInWithGoogle () {
-        //implementing a new provider through firebase
+        /*implementing a new provider through firebase*/
+        //definialjuk provider constant-ot, a firebase objektumon belul az auth
+        //funkciora(amit nem hivunk meg) rahivjuk a GoogleAuthProvider funkciot
         const provider = new firebase.auth.GoogleAuthProvider()
+        //aztan a firebase-re meghivjuk az auth funkciot, arra pedig a signinWithPopup
+        //funkciot, parameterenek atadjuk a providert
         firebase.auth().signInWithPopup(provider)
+          //a catchbe egy arrow funkcioval alerteljuk az error.messaget
           .catch(error => alert(':/ ' + error.message))
+          //a thenben egy arrow funkcioval console.logoljuk a visszakapott data objektumnak a user-et
+          //es a data.credential.accesTokent
           .then(data => console.log(data.user, data.credential.accesToken))
+      },
+      updateProfile () {
+        this.authUser.updateProfile({
+          displayName: this.displayName,
+          photoURL: this.photoURL
+        })
+      },
+      updateEmail () {
+        this.authUser.updateEmail(this.email)
+      },
+      updatePassword () {
+        this.authUser.updatePassword(this.newPassword)
+          .then(() => { this.newPassword = '' })
+          .catch(error => alert(':/ ' + error.message))
       }
     },
     created () {
-      //Firebase fires an event when an user sign in/out. We can listen on this event with onAuthStateChanged
-      //In the callback FB gives us the authenticated user, if nobody signed in, this will be null
-      //we store it in a variable to use it in Vue
-      firebase.auth().onAuthStateChanged(user => { this.authUser = user })
+      /*Firebase fires an event when an user sign in/out. We can listen on this event with onAuthStateChanged
+      In the callback FB gives us the authenticated user, if nobody signed in, this will be null
+      we store it in a variable to use it in Vue*/
+      //a firebase-re meghivjuk az auth funkciot, es arra pedig az onAuthStateChanged funkciot
+      //ez fogad egy callback-et, ami egy arrow funkcio es a Vue authUserjet beallitjuk a user valtozora
+      firebase.auth().onAuthStateChanged(user => { 
+        this.authUser = user
+        if(user) {
+          this.displayName = user.displayName
+          this.photoURL = user.photoURL
+          this.email = user.email
+        }
+      })
     }
   })
 </script>
